@@ -1,0 +1,161 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+
+  --color-bg: #eff6ff;
+  --color-surface: #e6f0ff;
+  --color-text: #1f2937;
+  --color-muted: #6b7280;
+  --color-primary: #3b82f6;
+  --color-accent: #10b981;
+  --color-border: #dbeafe;
+  --color-topbar: #ffffff;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  a {
+    color: var(--color-primary);
+    text-underline-offset: 2px;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-6;
+  }
+
+  .topbar {
+    @apply border-b;
+    border-color: var(--color-border);
+    background: var(--color-topbar);
+  }
+
+  .navlink {
+    @apply rounded-md px-2 py-1 text-sm font-medium transition-colors;
+    color: var(--color-muted);
+  }
+
+  .navlink[aria-current="page"] {
+    color: var(--color-text);
+  }
+
+  .navlink:hover {
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-surface) 92%, var(--color-border));
+  }
+
+  .card {
+    @apply rounded-lg border p-4 shadow-md;
+    border-color: var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .card:hover {
+    background: color-mix(in srgb, var(--color-surface) 96%, var(--color-border));
+    border-color: color-mix(in srgb, var(--color-primary) 28%, var(--color-border));
+  }
+
+  .card.hoverable {
+    @apply transition-colors;
+  }
+
+  .plate {
+    @apply rounded-lg border bg-white p-6 shadow-md;
+    border-color: var(--color-border);
+  }
+
+  .plate.hoverable {
+    @apply transition-colors;
+  }
+
+  .plate:hover {
+    background: color-mix(in srgb, var(--color-topbar) 86%, var(--color-border));
+    border-color: color-mix(in srgb, var(--color-primary) 28%, var(--color-border));
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-colors;
+  }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: color-mix(in srgb, var(--color-primary) 82%, black);
+  }
+
+  .btn-secondary {
+    @apply border;
+    border-color: var(--color-border);
+    background: var(--color-topbar);
+    color: var(--color-text);
+  }
+
+  .btn-secondary:hover {
+    background: color-mix(in srgb, var(--color-surface) 96%, var(--color-border));
+    border-color: color-mix(in srgb, var(--color-primary) 26%, var(--color-border));
+  }
+
+  .badge-green {
+    @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+    background: color-mix(in srgb, var(--color-accent) 12%, white);
+    color: var(--color-accent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 25%, white);
+  }
+
+  .input {
+    @apply w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none;
+    border-color: var(--color-border);
+  }
+
+  .input:focus {
+    border-color: color-mix(in srgb, var(--color-primary) 50%, var(--color-border));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+  }
+
+  .table {
+    @apply w-full border-separate border-spacing-0 overflow-hidden rounded-lg border text-sm;
+    border-color: var(--color-border);
+  }
+
+  .table th {
+    @apply bg-white px-3 py-2 text-left font-medium;
+    color: var(--color-muted);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .table td {
+    @apply bg-white px-3 py-2;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .table tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .modal-backdrop {
+    @apply fixed inset-0 hidden items-center justify-center p-6;
+    background: rgba(17, 24, 39, 0.25);
+  }
+
+  .modal-backdrop[data-open="true"] {
+    @apply flex;
+  }
+
+  .modal {
+    @apply w-full max-w-lg rounded-lg border bg-white p-5 shadow-sm;
+    border-color: var(--color-border);
+  }
+}

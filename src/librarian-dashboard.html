@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LibMetrics — Librarian Dashboard</title>
+    <link rel="stylesheet" href="./output.css" />
+    <script src="./app.js"></script>
+  </head>
+  <body>
+    <script>
+      window.LibMetrics.requireRole(["librarian"]);
+    </script>
+
+    <header class="topbar">
+      <div class="container-page flex h-14 items-center justify-between">
+        <div class="flex items-center gap-6">
+          <a href="./librarian-dashboard.html" class="text-sm font-semibold tracking-tight" style="color: var(--color-text)">LibMetrics</a>
+          <nav class="hidden items-center gap-6 sm:flex">
+            <a class="navlink" aria-current="page" href="./librarian-dashboard.html">Dashboard</a>
+            <a class="navlink" href="./librarian-dashboard.html">Students</a>
+            <a class="navlink" href="./book-management.html">Books</a>
+          </nav>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-sm" style="color: var(--color-muted)">Librarian</span>
+          <a class="btn btn-secondary" data-signout href="./index.html">Sign out</a>
+        </div>
+      </div>
+      <div class="container-page sm:hidden">
+        <details class="border-t py-2" style="border-color: var(--color-border)">
+          <summary class="navlink inline-flex cursor-pointer select-none">Menu</summary>
+          <nav class="mt-2 grid gap-1 pb-2">
+            <a class="navlink" aria-current="page" href="./librarian-dashboard.html">Dashboard</a>
+            <a class="navlink" href="./librarian-dashboard.html">Students</a>
+            <a class="navlink" href="./book-management.html">Books</a>
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <main class="container-page py-8">
+      <section class="flex items-end justify-between gap-3">
+        <div>
+          <h1 class="text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">Quick overview for the class library.</p>
+        </div>
+        <a class="btn btn-primary" href="./book-management.html">Manage Books</a>
+      </section>
+
+      <section class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="card">
+          <p class="text-sm font-medium">Students</p>
+          <p class="mt-2 text-2xl font-semibold">26</p>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">Active this week</p>
+        </div>
+        <div class="card">
+          <p class="text-sm font-medium">Total sessions</p>
+          <p class="mt-2 text-2xl font-semibold">184</p>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">Last 7 days</p>
+        </div>
+        <div class="card">
+          <p class="text-sm font-medium">Avg. minutes</p>
+          <p class="mt-2 text-2xl font-semibold">16</p>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">Per student</p>
+        </div>
+        <div class="card">
+          <p class="text-sm font-medium">Needs attention</p>
+          <p class="mt-2 text-2xl font-semibold">5</p>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">Low streak</p>
+        </div>
+      </section>
+
+      <section class="mt-8 grid gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+          <div class="flex items-end justify-between">
+            <h2 class="text-lg font-semibold">Students</h2>
+            <div class="flex items-center gap-2">
+              <input class="input w-56" type="search" placeholder="Search students" />
+              <button class="btn btn-secondary" type="button">Filter</button>
+            </div>
+          </div>
+
+          <div class="mt-3 overflow-auto">
+            <table class="table min-w-[640px]">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Streak</th>
+                  <th>Minutes (7d)</th>
+                  <th>Last session</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-medium">Alex</td>
+                  <td><span class="badge-green">7 days</span></td>
+                  <td>128</td>
+                  <td style="color: var(--color-muted)">Today</td>
+                </tr>
+                <tr>
+                  <td class="font-medium">Sam</td>
+                  <td><span class="badge-green">4 days</span></td>
+                  <td>96</td>
+                  <td style="color: var(--color-muted)">Yesterday</td>
+                </tr>
+                <tr>
+                  <td class="font-medium">Jordan</td>
+                  <td style="color: var(--color-muted)">1 day</td>
+                  <td>42</td>
+                  <td style="color: var(--color-muted)">3 days ago</td>
+                </tr>
+                <tr>
+                  <td class="font-medium">Mina</td>
+                  <td style="color: var(--color-muted)">0 days</td>
+                  <td>18</td>
+                  <td style="color: var(--color-muted)">1 week ago</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <aside class="space-y-4">
+          <div class="card">
+            <h2 class="text-lg font-semibold">Popular Books</h2>
+            <ul class="mt-3 space-y-2 text-sm">
+              <li class="flex items-center justify-between">
+                <span class="font-medium">The Quiet Planet</span>
+                <span style="color: var(--color-muted)">14 readers</span>
+              </li>
+              <li class="flex items-center justify-between">
+                <span class="font-medium">Math for Makers</span>
+                <span style="color: var(--color-muted)">11 readers</span>
+              </li>
+              <li class="flex items-center justify-between">
+                <span class="font-medium">History in Ten Maps</span>
+                <span style="color: var(--color-muted)">9 readers</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h2 class="text-lg font-semibold">Needs Attention</h2>
+            <p class="mt-1 text-sm" style="color: var(--color-muted)">Students with low activity.</p>
+            <ul class="mt-3 space-y-2 text-sm">
+              <li class="flex items-center justify-between">
+                <span class="font-medium">Mina</span>
+                <span class="text-xs" style="color: var(--color-muted)">No sessions this week</span>
+              </li>
+              <li class="flex items-center justify-between">
+                <span class="font-medium">Jordan</span>
+                <span class="text-xs" style="color: var(--color-muted)">Streak reset</span>
+              </li>
+              <li class="flex items-center justify-between">
+                <span class="font-medium">Taylor</span>
+                <span class="text-xs" style="color: var(--color-muted)">Below weekly goal</span>
+              </li>
+            </ul>
+          </div>
+        </aside>
+      </section>
+
+      <section class="mt-6 card">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 class="text-lg font-semibold">Library Visits & Activity</h2>
+            <p class="mt-1 text-sm" style="color: var(--color-muted)">Demo log of what students did during library visits.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input class="input w-60" type="search" placeholder="Search by student or book" />
+            <button class="btn btn-secondary" type="button">Export</button>
+          </div>
+        </div>
+
+        <div class="mt-4 overflow-auto">
+          <table class="table min-w-[980px]">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Date</th>
+                <th>Visit time</th>
+                <th>Actions</th>
+                <th>Books</th>
+                <th>Minutes</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-medium">Alex</td>
+                <td style="color: var(--color-muted)">Today</td>
+                <td>13:05–13:25</td>
+                <td style="color: var(--color-muted)">Browsed • Opened reader • Finished session</td>
+                <td>The Quiet Planet</td>
+                <td>20</td>
+                <td style="color: var(--color-muted)">Good focus, steady pace</td>
+              </tr>
+              <tr>
+                <td class="font-medium">Sam</td>
+                <td style="color: var(--color-muted)">Yesterday</td>
+                <td>10:40–11:00</td>
+                <td style="color: var(--color-muted)">Checked out • Started reading</td>
+                <td>Math for Makers</td>
+                <td>16</td>
+                <td style="color: var(--color-muted)">Asked for help with chapter 2</td>
+              </tr>
+              <tr>
+                <td class="font-medium">Jordan</td>
+                <td style="color: var(--color-muted)">3 days ago</td>
+                <td>12:10–12:18</td>
+                <td style="color: var(--color-muted)">Browsed • Left early</td>
+                <td>Short Stories Pack</td>
+                <td>8</td>
+                <td style="color: var(--color-muted)">Short visit, low engagement</td>
+              </tr>
+              <tr>
+                <td class="font-medium">Mina</td>
+                <td style="color: var(--color-muted)">1 week ago</td>
+                <td>09:20–09:28</td>
+                <td style="color: var(--color-muted)">Returned • Browsed</td>
+                <td>History in Ten Maps</td>
+                <td>6</td>
+                <td style="color: var(--color-muted)">Consider recommending easier book</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

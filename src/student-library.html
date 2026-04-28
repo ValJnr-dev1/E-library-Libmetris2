@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LibMetrics — Library</title>
+    <link rel="stylesheet" href="./output.css" />
+    <script src="./app.js"></script>
+  </head>
+  <body>
+    <script>
+      window.LibMetrics.requireRole(["student"]);
+    </script>
+
+    <header class="topbar">
+      <div class="container-page flex h-14 items-center justify-between">
+        <div class="flex items-center gap-6">
+          <a href="./student-dashboard.html" class="text-sm font-semibold tracking-tight" style="color: var(--color-text)">LibMetrics</a>
+          <nav class="hidden items-center gap-6 sm:flex">
+            <a class="navlink" href="./student-dashboard.html">Dashboard</a>
+            <a class="navlink" aria-current="page" href="./student-library.html">Library</a>
+            <a class="navlink" href="./student-analytics.html">Analytics</a>
+            <a class="navlink" href="./e-reader.html">Reader</a>
+          </nav>
+        </div>
+        <a class="btn btn-secondary" data-signout href="./index.html">Sign out</a>
+      </div>
+      <div class="container-page sm:hidden">
+        <details class="border-t py-2" style="border-color: var(--color-border)">
+          <summary class="navlink inline-flex cursor-pointer select-none">Menu</summary>
+          <nav class="mt-2 grid gap-1 pb-2">
+            <a class="navlink" href="./student-dashboard.html">Dashboard</a>
+            <a class="navlink" aria-current="page" href="./student-library.html">Library</a>
+            <a class="navlink" href="./student-analytics.html">Analytics</a>
+            <a class="navlink" href="./e-reader.html">Reader</a>
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <main class="container-page py-8">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 class="text-2xl font-semibold tracking-tight">Library</h1>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">Browse books available to you.</p>
+        </div>
+        <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <input id="librarySearch" class="input w-full sm:w-72" type="search" placeholder="Search by title or author" />
+          <a class="btn btn-primary" href="./e-reader.html">Open Reader</a>
+        </div>
+      </div>
+
+      <section class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <article class="card flex gap-4" data-title="The Quiet Planet" data-author="M. Rivera">
+          <div class="h-20 w-14 shrink-0 rounded border bg-white shadow-sm" style="border-color: var(--color-border)"></div>
+          <div class="min-w-0">
+            <h2 class="truncate text-sm font-semibold">The Quiet Planet</h2>
+            <p class="mt-1 text-sm" style="color: var(--color-muted)">M. Rivera</p>
+            <p class="mt-2 text-sm" style="color: var(--color-muted)">Short sci‑fi chapters. Easy to follow.</p>
+            <div class="mt-3 flex items-center gap-2">
+              <span class="badge-green">Recommended</span>
+              <span class="text-xs" style="color: var(--color-muted)">~2h</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card flex gap-4" data-title="Math for Makers" data-author="J. Chen">
+          <div class="h-20 w-14 shrink-0 rounded border bg-white shadow-sm" style="border-color: var(--color-border)"></div>
+          <div class="min-w-0">
+            <h2 class="truncate text-sm font-semibold">Math for Makers</h2>
+            <p class="mt-1 text-sm" style="color: var(--color-muted)">J. Chen</p>
+            <p class="mt-2 text-sm" style="color: var(--color-muted)">Practical examples and quick exercises.</p>
+            <div class="mt-3 flex items-center gap-2">
+              <span class="text-xs" style="color: var(--color-muted)">STEM</span>
+              <span class="text-xs" style="color: var(--color-muted)">~1h</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card flex gap-4" data-title="History in Ten Maps" data-author="A. Singh">
+          <div class="h-20 w-14 shrink-0 rounded border bg-white shadow-sm" style="border-color: var(--color-border)"></div>
+          <div class="min-w-0">
+            <h2 class="truncate text-sm font-semibold">History in Ten Maps</h2>
+            <p class="mt-1 text-sm" style="color: var(--color-muted)">A. Singh</p>
+            <p class="mt-2 text-sm" style="color: var(--color-muted)">Non‑fiction with clear sections.</p>
+            <div class="mt-3 flex items-center gap-2">
+              <span class="text-xs" style="color: var(--color-muted)">Non‑fiction</span>
+              <span class="text-xs" style="color: var(--color-muted)">~3h</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card flex gap-4" data-title="Reading Smarter" data-author="K. Brown">
+          <div class="h-20 w-14 shrink-0 rounded border bg-white shadow-sm" style="border-color: var(--color-border)"></div>
+          <div class="min-w-0">
+            <h2 class="truncate text-sm font-semibold">Reading Smarter</h2>
+            <p class="mt-1 text-sm" style="color: var(--color-muted)">K. Brown</p>
+            <p class="mt-2 text-sm" style="color: var(--color-muted)">Build better reading habits.</p>
+            <div class="mt-3 flex items-center gap-2">
+              <span class="badge-green">Quick</span>
+              <span class="text-xs" style="color: var(--color-muted)">~45m</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card flex gap-4" data-title="Basics of Biology" data-author="N. Ali">
+          <div class="h-20 w-14 shrink-0 rounded border bg-white shadow-sm" style="border-color: var(--color-border)"></div>
+          <div class="min-w-0">
+            <h2 class="truncate text-sm font-semibold">Basics of Biology</h2>
+            <p class="mt-1 text-sm" style="color: var(--color-muted)">N. Ali</p>
+            <p class="mt-2 text-sm" style="color: var(--color-muted)">Simple explanations and diagrams.</p>
+            <div class="mt-3 flex items-center gap-2">
+              <span class="text-xs" style="color: var(--color-muted)">Science</span>
+              <span class="text-xs" style="color: var(--color-muted)">~1.5h</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card flex gap-4" data-title="Short Stories Pack" data-author="Various">
+          <div class="h-20 w-14 shrink-0 rounded border bg-white shadow-sm" style="border-color: var(--color-border)"></div>
+          <div class="min-w-0">
+            <h2 class="truncate text-sm font-semibold">Short Stories Pack</h2>
+            <p class="mt-1 text-sm" style="color: var(--color-muted)">Various</p>
+            <p class="mt-2 text-sm" style="color: var(--color-muted)">Fast reads to keep your streak going.</p>
+            <div class="mt-3 flex items-center gap-2">
+              <span class="badge-green">Streak</span>
+              <span class="text-xs" style="color: var(--color-muted)">~30m</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const search = document.getElementById("librarySearch");
+        const cards = Array.from(document.querySelectorAll("[data-title]"));
+
+        search.addEventListener("input", () => {
+          const q = search.value.trim().toLowerCase();
+          cards.forEach((card) => {
+            const t = (card.dataset.title || "").toLowerCase();
+            const a = (card.dataset.author || "").toLowerCase();
+            const show = !q || t.includes(q) || a.includes(q);
+            card.style.display = show ? "" : "none";
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
