@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LibMetrics — Librarian Dashboard</title>
+    <link rel="stylesheet" href="./output.css" />
+    <script src="./app.js"></script>
+  </head>
+  <body>
+    <script>window.LibMetrics.requireRole(["librarian"]);</script>
+
+    <header class="topbar">
+      <div class="container-page flex h-14 items-center justify-between">
+        <div class="flex items-center gap-6">
+          <a href="./librarian-dashboard.html" class="text-sm font-semibold tracking-tight" style="color: var(--color-text)">LibMetrics</a>
+          <nav class="hidden items-center gap-6 sm:flex">
+            <a class="navlink" aria-current="page" href="./librarian-dashboard.html">Dashboard</a>
+            <a class="navlink" href="./librarian-students.html">Students</a>
+            <a class="navlink" href="./book-management.html">Books</a>
+          </nav>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="userName" class="text-sm" style="color: var(--color-muted)"></span>
+          <a class="btn btn-secondary" data-signout href="./librarian-login.html">Sign out</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container-page py-8">
+      <section class="flex items-end justify-between gap-3">
+        <div>
+          <h1 class="text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">Quick overview for the class library.</p>
+        </div>
+        <div class="flex gap-2">
+          <a class="btn btn-secondary" href="./librarian-students.html">All Students</a>
+          <a class="btn btn-primary" href="./book-management.html">Manage Books</a>
+        </div>
+      </section>
+
+      <section class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="card">
+          <p class="text-sm font-medium">Active students</p>
+          <p id="statActive" class="mt-2 text-2xl font-semibold">—</p>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">Last 30 days</p>
+        </div>
+        <div class="card">
+          <p class="text-sm font-medium">Total sessions</p>
+          <p id="statSessions" class="mt-2 text-2xl font-semibold">—</p>
+        </div>
+        <div class="card">
+          <p class="text-sm font-medium">Avg. minutes</p>
+          <p id="statAvg" class="mt-2 text-2xl font-semibold">—</p>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">Per completed session</p>
+        </div>
+        <div class="card">
+          <p class="text-sm font-medium">Needs attention</p>
+          <p id="statAttention" class="mt-2 text-2xl font-semibold">—</p>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">Low activity (7d)</p>
+        </div>
+      </section>
+
+      <section class="mt-8 grid gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+          <div class="flex items-end justify-between gap-2">
+            <h2 class="text-lg font-semibold">Students</h2>
+            <input id="studentSearch" class="input w-56" type="search" placeholder="Search students" />
+          </div>
+          <div class="mt-3 overflow-auto">
+            <table class="table min-w-[640px]">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Matric</th>
+                  <th>Streak</th>
+                  <th>Minutes</th>
+                </tr>
+              </thead>
+              <tbody id="studentsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <aside class="space-y-4">
+          <div class="card">
+            <h2 class="text-lg font-semibold">Popular Books</h2>
+            <ul id="popularList" class="mt-3 space-y-2 text-sm"></ul>
+          </div>
+          <div class="card">
+            <h2 class="text-lg font-semibold">Needs Attention</h2>
+            <ul id="attentionList" class="mt-3 space-y-2 text-sm"></ul>
+          </div>
+        </aside>
+      </section>
+
+      <section class="mt-6 card">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 class="text-lg font-semibold">Activity Logs</h2>
+            <p class="mt-1 text-sm" style="color: var(--color-muted)">Recent reading activity.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="logSearch" class="input w-60" type="search" placeholder="Search logs" />
+            <button id="exportLogs" class="btn btn-secondary" type="button">Export CSV</button>
+          </div>
+        </div>
+        <div class="mt-4 overflow-auto">
+          <table class="table min-w-[760px]">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Book</th>
+                <th>Action</th>
+                <th>When</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="logsTbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      (async function () {
+        document.getElementById("userName").textContent = LibMetrics.displayNameFromEmail(LibMetrics.getEmail());
+
+        async function loadStudents(search = "") {
+          const data = await LibMetrics.api.getLibrarianStudents(search, 1, 20);
+          document.getElementById("studentsTbody").innerHTML = data.items.map((s) => `
+            <tr>
+              <td class="font-medium">${s.first_name} ${s.last_name}</td>
+              <td style="color: var(--color-muted)">${s.matric_number}</td>
+              <td>${s.current_streak_days} days</td>
+              <td>${s.total_reading_time_minutes}</td>
+            </tr>`).join("") || `<tr><td colspan="4" style="color: var(--color-muted)">No students found.</td></tr>`;
+        }
+
+        async function loadLogs(search = "") {
+          const data = await LibMetrics.api.getActivityLogs(search, 1, 20);
+          document.getElementById("logsTbody").innerHTML = data.items.map((log) => `
+            <tr>
+              <td class="font-medium">${log.student_name || "—"}</td>
+              <td>${log.book_title || "—"}</td>
+              <td style="color: var(--color-muted)">${log.action}</td>
+              <td style="color: var(--color-muted)">${new Date(log.created_at).toLocaleString()}</td>
+              <td style="color: var(--color-muted)">${log.notes || ""}</td>
+            </tr>`).join("") || `<tr><td colspan="5" style="color: var(--color-muted)">No activity yet.</td></tr>`;
+        }
+
+        try {
+          const [overview, popular, attention] = await Promise.all([
+            LibMetrics.api.getLibrarianOverview(),
+            LibMetrics.api.getPopularBooks(),
+            LibMetrics.api.getLowActivityStudents(),
+          ]);
+
+          document.getElementById("statActive").textContent = overview.active_students;
+          document.getElementById("statSessions").textContent = overview.total_sessions;
+          document.getElementById("statAvg").textContent = Math.round(overview.average_reading_minutes);
+          document.getElementById("statAttention").textContent = overview.low_activity_count;
+
+          document.getElementById("popularList").innerHTML = popular.length
+            ? popular.map((b) => `<li class="flex justify-between"><span class="font-medium">${b.title}</span><span style="color: var(--color-muted)">${b.session_count} sessions</span></li>`).join("")
+            : `<li style="color: var(--color-muted)">No session data yet.</li>`;
+
+          document.getElementById("attentionList").innerHTML = attention.length
+            ? attention.map((s) => `<li class="flex justify-between"><span class="font-medium">${s.first_name} ${s.last_name}</span><span class="text-xs" style="color: var(--color-muted)">Inactive 7+ days</span></li>`).join("")
+            : `<li style="color: var(--color-muted)">All students are active.</li>`;
+
+          await loadStudents();
+          await loadLogs();
+        } catch (err) {
+          document.getElementById("studentsTbody").innerHTML = `<tr><td colspan="4">${err.message}</td></tr>`;
+        }
+
+        let studentTimer;
+        document.getElementById("studentSearch").addEventListener("input", (e) => {
+          clearTimeout(studentTimer);
+          studentTimer = setTimeout(() => loadStudents(e.target.value.trim()), 300);
+        });
+
+        let logTimer;
+        document.getElementById("logSearch").addEventListener("input", (e) => {
+          clearTimeout(logTimer);
+          logTimer = setTimeout(() => loadLogs(e.target.value.trim()), 300);
+        });
+
+        document.getElementById("exportLogs").addEventListener("click", async () => {
+          try {
+            const search = document.getElementById("logSearch").value.trim();
+            const blob = await LibMetrics.api.exportActivityLogs(search);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "activity_logs.csv";
+            a.click();
+            URL.revokeObjectURL(url);
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

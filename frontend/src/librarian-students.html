@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LibMetrics — Manage Students</title>
+    <link rel="stylesheet" href="./output.css" />
+    <script src="./app.js"></script>
+  </head>
+  <body>
+    <script>window.LibMetrics.requireRole(["librarian"]);</script>
+
+    <header class="topbar">
+      <div class="container-page flex h-14 items-center justify-between">
+        <div class="flex items-center gap-6">
+          <a href="./librarian-dashboard.html" class="text-sm font-semibold">LibMetrics</a>
+          <nav class="hidden items-center gap-6 sm:flex">
+            <a class="navlink" href="./librarian-dashboard.html">Dashboard</a>
+            <a class="navlink" aria-current="page" href="./librarian-students.html">Students</a>
+            <a class="navlink" href="./book-management.html">Books</a>
+          </nav>
+        </div>
+        <a class="btn btn-secondary" data-signout href="./librarian-login.html">Sign out</a>
+      </div>
+    </header>
+
+    <main class="container-page py-8">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 class="text-2xl font-semibold">All Students</h1>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">View and manage registered students.</p>
+        </div>
+        <input id="studentSearch" class="input w-full sm:w-72" type="search" placeholder="Search by name, email, matric" />
+      </div>
+
+      <p id="pageError" class="alert-error mt-4 hidden"></p>
+
+      <section class="mt-6 overflow-auto">
+        <table class="table min-w-[800px]">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Matric</th>
+              <th>Email</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTbody"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <script>
+      (async function () {
+        const tbody = document.getElementById("studentsTbody");
+        const search = document.getElementById("studentSearch");
+        let students = [];
+
+        function render(list) {
+          tbody.innerHTML = list.length
+            ? list.map((s) => `
+              <tr>
+                <td class="font-medium">${s.first_name} ${s.last_name}</td>
+                <td>${s.matric_number}</td>
+                <td>${s.email}</td>
+                <td style="color: var(--color-muted)">${new Date(s.created_at).toLocaleDateString()}</td>
+                <td>
+                  <button class="btn btn-secondary text-xs" type="button" data-delete="${s.id}" data-name="${s.first_name} ${s.last_name}">Delete</button>
+                </td>
+              </tr>`).join("")
+            : `<tr><td colspan="5" style="color: var(--color-muted)">No students found.</td></tr>`;
+
+          tbody.querySelectorAll("[data-delete]").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              const id = Number(btn.dataset.delete);
+              const name = btn.dataset.name;
+              if (!confirm(`Permanently delete student "${name}"? This cannot be undone.`)) return;
+              try {
+                await LibMetrics.api.deleteStudent(id);
+                students = students.filter((s) => s.id !== id);
+                render(students);
+              } catch (err) {
+                LibMetrics.showError(document.getElementById("pageError"), err.message);
+              }
+            });
+          });
+        }
+
+        async function load(q = "") {
+          students = await LibMetrics.api.getAllStudents(q);
+          render(students);
+        }
+
+        let timer;
+        search.addEventListener("input", () => {
+          clearTimeout(timer);
+          timer = setTimeout(() => load(search.value.trim()), 300);
+        });
+
+        try {
+          await load();
+        } catch (err) {
+          LibMetrics.showError(document.getElementById("pageError"), err.message);
+        }
+      })();
+    </script>
+  </body>
+</html>

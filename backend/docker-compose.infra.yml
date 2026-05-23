@@ -1,0 +1,31 @@
+# Database + frontend only — run the API locally when Docker Hub is unreachable.
+# Usage:
+#   docker compose -f docker-compose.infra.yml up -d
+#   cd backend && alembic upgrade head && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-elibrary}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-elibrary_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-elibrary}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-elibrary}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ../frontend/src:/usr/share/nginx/html:ro
+
+volumes:
+  postgres_data:

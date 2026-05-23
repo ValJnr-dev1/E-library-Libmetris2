@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LibMetrics — Librarian Sign In</title>
+    <link rel="stylesheet" href="./output.css" />
+    <script src="./app.js"></script>
+  </head>
+  <body>
+    <div class="auth-shell">
+      <aside class="auth-hero">
+        <div class="relative z-10">
+          <a href="./index.html" class="text-sm text-blue-100 no-underline">← Back</a>
+          <h1 class="mt-8 text-3xl font-semibold leading-tight">Librarian Portal</h1>
+          <p class="mt-4 max-w-sm text-sm text-blue-100">Authorized staff only. Manage books, students, and reading activity.</p>
+        </div>
+      </aside>
+      <main class="auth-panel">
+        <div class="auth-card">
+          <header class="mb-6">
+            <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-primary)">Librarians only</p>
+            <h2 class="mt-1 text-2xl font-semibold">Sign in</h2>
+          </header>
+          <p id="authError" class="alert-error mb-4 hidden"></p>
+          <form id="loginForm" class="space-y-4">
+            <label class="block text-sm font-medium">Email<input class="input mt-1" type="email" name="email" required /></label>
+            <label class="block text-sm font-medium">Password<input class="input mt-1" type="password" name="password" required minlength="8" /></label>
+            <button class="btn btn-primary w-full py-2.5" type="submit">Sign in</button>
+          </form>
+          <footer class="mt-6 border-t pt-6 text-center text-sm" style="border-color: var(--color-border); color: var(--color-muted)">
+            New librarian? <a href="./librarian-register.html" style="color: var(--color-primary)">Register staff account</a>
+          </footer>
+        </div>
+      </main>
+    </div>
+    <script>
+      (function () {
+        if (LibMetrics.getToken() && LibMetrics.getRole() === "librarian") {
+          window.location.href = "./librarian-dashboard.html";
+        }
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const data = new FormData(e.target);
+          try {
+            const result = await LibMetrics.api.login(String(data.get("email")), String(data.get("password")), "LIBRARIAN");
+            LibMetrics.setSession("librarian", result.access_token, String(data.get("email")));
+            window.location.href = "./librarian-dashboard.html";
+          } catch (err) {
+            LibMetrics.showError(document.getElementById("authError"), err.message);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

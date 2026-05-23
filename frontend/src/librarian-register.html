@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LibMetrics — Librarian Registration</title>
+    <link rel="stylesheet" href="./output.css" />
+    <script src="./app.js"></script>
+  </head>
+  <body>
+    <div class="auth-shell">
+      <aside class="auth-hero">
+        <div class="relative z-10">
+          <a href="./librarian-login.html" class="text-sm text-blue-100 no-underline">← Sign in</a>
+          <h1 class="mt-8 text-3xl font-semibold leading-tight">Librarian registration</h1>
+          <p class="mt-4 max-w-sm text-sm text-blue-100">For authorized library staff. Students should use the student portal.</p>
+        </div>
+      </aside>
+      <main class="auth-panel">
+        <div class="auth-card">
+          <header class="mb-6">
+            <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-primary)">Staff only</p>
+            <h2 class="mt-1 text-2xl font-semibold">Create librarian account</h2>
+          </header>
+          <p id="registerError" class="alert-error mb-4 hidden"></p>
+          <form id="registerForm" class="space-y-4">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="block text-sm font-medium">First name<input class="input mt-1" name="first_name" required /></label>
+              <label class="block text-sm font-medium">Last name<input class="input mt-1" name="last_name" required /></label>
+            </div>
+            <label class="block text-sm font-medium">School ID number<input class="input mt-1" name="school_id_number" required /></label>
+            <label class="block text-sm font-medium">Email<input class="input mt-1" type="email" name="email" required /></label>
+            <label class="block text-sm font-medium">Password<input class="input mt-1" type="password" name="password" required minlength="8" /></label>
+            <label class="block text-sm font-medium">Confirm password<input class="input mt-1" type="password" name="confirm_password" required minlength="8" /></label>
+            <button class="btn btn-primary w-full py-2.5" type="submit">Create librarian account</button>
+          </form>
+          <footer class="mt-6 text-center text-sm" style="color: var(--color-muted)">
+            Student? <a href="./student-register.html" style="color: var(--color-primary)">Student registration</a>
+          </footer>
+        </div>
+      </main>
+    </div>
+    <script>
+      document.getElementById("registerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        if (data.get("password") !== data.get("confirm_password")) {
+          LibMetrics.showError(document.getElementById("registerError"), "Passwords do not match.");
+          return;
+        }
+        const body = {
+          first_name: String(data.get("first_name")),
+          last_name: String(data.get("last_name")),
+          school_id_number: String(data.get("school_id_number")),
+          email: String(data.get("email")),
+          password: String(data.get("password")),
+        };
+        try {
+          await LibMetrics.api.registerLibrarian(body);
+          const login = await LibMetrics.api.login(body.email, body.password, "LIBRARIAN");
+          LibMetrics.setSession("librarian", login.access_token, body.email);
+          window.location.href = "./librarian-dashboard.html";
+        } catch (err) {
+          LibMetrics.showError(document.getElementById("registerError"), err.message);
+        }
+      });
+    </script>
+  </body>
+</html>

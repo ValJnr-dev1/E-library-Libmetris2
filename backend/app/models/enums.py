@@ -1,0 +1,22 @@
+import enum
+
+
+class UserRole(str, enum.Enum):
+    STUDENT = "STUDENT"
+    LIBRARIAN = "LIBRARIAN"
+
+
+class SessionStatus(str, enum.Enum):
+    ACTIVE = "ACTIVE"
+    COMPLETED = "COMPLETED"
+    ABANDONED = "ABANDONED"
+
+
+class ActivityAction(str, enum.Enum):
+    BOOK_OPENED = "BOOK_OPENED"
+    PAGE_CHANGED = "PAGE_CHANGED"
+    SESSION_STARTED = "SESSION_STARTED"
+    SESSION_COMPLETED = "SESSION_COMPLETED"
+    SESSION_ABANDONED = "SESSION_ABANDONED"
+    BOOK_UPLOADED = "BOOK_UPLOADED"
+    BOOK_DELETED = "BOOK_DELETED"

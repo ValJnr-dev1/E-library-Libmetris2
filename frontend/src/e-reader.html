@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LibMetrics — Reader</title>
+    <link rel="stylesheet" href="./output.css" />
+    <script src="./app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <script>window.LibMetrics.requireRole(["student"]);</script>
+
+    <header class="topbar shrink-0">
+      <div class="container-page flex h-14 items-center justify-between gap-4">
+        <div class="min-w-0">
+          <a href="./student-dashboard.html" class="text-sm font-semibold">LibMetrics</a>
+          <span class="mx-2 text-sm" style="color: var(--color-muted)">/</span>
+          <span id="bookTitle" class="text-sm font-medium">Loading…</span>
+        </div>
+        <div class="flex shrink-0 items-center gap-4 text-sm" style="color: var(--color-muted)">
+          <span>Page <strong id="currentPageLabel" style="color: var(--color-text)">1</strong> / <span id="totalPagesLabel">—</span></span>
+          <span><strong id="progressLabel" style="color: var(--color-text)">0%</strong></span>
+          <span id="pageTimeLabel" class="hidden sm:inline">~<span id="minsPerPage">—</span> min/page</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container-page flex flex-1 flex-col py-3">
+      <p id="readerError" class="alert-error mb-3 hidden"></p>
+      <div class="plate flex flex-1 flex-col overflow-hidden">
+        <div id="pdfContainer" class="relative flex flex-1 items-start justify-center overflow-auto bg-gray-100 p-4" style="min-height: 60vh">
+          <canvas id="pdfCanvas" class="max-w-full shadow-md"></canvas>
+        </div>
+      </div>
+    </main>
+
+    <footer class="topbar shrink-0">
+      <div class="container-page flex h-16 items-center justify-between gap-3">
+        <button id="prevPage" class="btn btn-secondary w-24" type="button">Prev</button>
+        <div class="flex items-center gap-2">
+          <a class="btn btn-secondary" href="./student-library.html">Library</a>
+          <button id="finishSession" class="btn btn-primary" type="button">Finish Session</button>
+        </div>
+        <button id="nextPage" class="btn btn-secondary w-24" type="button">Next</button>
+      </div>
+    </footer>
+
+    <script>
+      (async function () {
+        const pdfjsLib = window["pdfjs-dist/build/pdf"] || window.pdfjsLib;
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+        const params = new URLSearchParams(window.location.search);
+        const bookId = Number(params.get("book_id"));
+        if (!bookId) {
+          window.location.href = "./student-library.html";
+          return;
+        }
+
+        let sessionId = null;
+        let pdfDoc = null;
+        let currentPage = 1;
+        let totalPages = 1;
+        let pageEnteredAt = Date.now();
+        let saveTimer = null;
+        let rendering = false;
+
+        const canvas = document.getElementById("pdfCanvas");
+        const ctx = canvas.getContext("2d");
+        const readerError = document.getElementById("readerError");
+
+        function updateLabels() {
+          document.getElementById("currentPageLabel").textContent = String(currentPage);
+          document.getElementById("totalPagesLabel").textContent = String(totalPages);
+          const pct = totalPages ? Math.round((currentPage / totalPages) * 100) : 0;
+          document.getElementById("progressLabel").textContent = `${pct}%`;
+        }
+
+        async function renderPage(num) {
+          if (!pdfDoc || rendering) return;
+          rendering = true;
+          currentPage = num;
+          const page = await pdfDoc.getPage(num);
+          const viewport = page.getViewport({ scale: 1.35 });
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          rendering = false;
+          updateLabels();
+        }
+
+        function scheduleSaveProgress() {
+          clearTimeout(saveTimer);
+          saveTimer = setTimeout(async () => {
+            try {
+              await LibMetrics.api.updateProgress(bookId, currentPage);
+              const analytics = await LibMetrics.api.getStudentAnalytics();
+              if (analytics.minutes_per_page) {
+                document.getElementById("minsPerPage").textContent = String(analytics.minutes_per_page);
+                document.getElementById("pageTimeLabel").classList.remove("hidden");
+              }
+            } catch (err) {
+              console.warn("Progress save failed:", err.message);
+            }
+          }, 400);
+        }
+
+        async function goToPage(num) {
+          if (num < 1 || num > totalPages || num === currentPage) return;
+          pageEnteredAt = Date.now();
+          await renderPage(num);
+          scheduleSaveProgress();
+        }
+
+        document.getElementById("prevPage").addEventListener("click", () => goToPage(currentPage - 1));
+        document.getElementById("nextPage").addEventListener("click", () => goToPage(currentPage + 1));
+
+        document.getElementById("finishSession").addEventListener("click", async () => {
+          const btn = document.getElementById("finishSession");
+          btn.disabled = true;
+          try {
+            await LibMetrics.api.updateProgress(bookId, currentPage);
+            if (sessionId) await LibMetrics.api.endSession(sessionId);
+            window.location.href = "./student-dashboard.html";
+          } catch (err) {
+            LibMetrics.showError(readerError, err.message);
+            btn.disabled = false;
+          }
+        });
+
+        try {
+          const state = await LibMetrics.api.getReaderState(bookId);
+          document.getElementById("bookTitle").textContent = state.book.title;
+          totalPages = state.book.total_pages;
+          currentPage = Math.min(state.progress?.current_page || 1, totalPages);
+
+          if (state.active_session) {
+            sessionId = state.active_session.session_id;
+          } else {
+            const started = await LibMetrics.api.startSession(bookId);
+            sessionId = started.session_id;
+          }
+
+          const blob = await LibMetrics.api.fetchBookPdfBlob(bookId);
+          const data = await blob.arrayBuffer();
+          pdfDoc = await pdfjsLib.getDocument({ data }).promise;
+
+          if (pdfDoc.numPages !== totalPages) {
+            totalPages = pdfDoc.numPages;
+          }
+
+          await renderPage(currentPage);
+          scheduleSaveProgress();
+
+          const analytics = await LibMetrics.api.getStudentAnalytics();
+          if (analytics.minutes_per_page) {
+            document.getElementById("minsPerPage").textContent = String(analytics.minutes_per_page);
+          }
+        } catch (err) {
+          LibMetrics.showError(readerError, err.message);
+        }
+      })();
+    </script>
+  </body>
+</html>

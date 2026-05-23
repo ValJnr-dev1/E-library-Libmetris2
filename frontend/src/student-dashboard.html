@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LibMetrics — Student Dashboard</title>
+    <link rel="stylesheet" href="./output.css" />
+    <script src="./app.js"></script>
+  </head>
+  <body>
+    <script>window.LibMetrics.requireRole(["student"]);</script>
+
+    <header class="topbar">
+      <div class="container-page flex h-14 items-center justify-between">
+        <div class="flex items-center gap-6">
+          <a href="./student-dashboard.html" class="text-sm font-semibold tracking-tight" style="color: var(--color-text)">LibMetrics</a>
+          <nav class="hidden items-center gap-6 sm:flex">
+            <a class="navlink" aria-current="page" href="./student-dashboard.html">Dashboard</a>
+            <a class="navlink" href="./student-library.html">Library</a>
+            <a class="navlink" href="./student-analytics.html">Analytics</a>
+          </nav>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="userName" class="text-sm" style="color: var(--color-muted)"></span>
+          <a class="btn btn-secondary" data-signout href="./student-login.html">Sign out</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container-page py-8">
+      <section class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 id="welcomeTitle" class="text-2xl font-semibold tracking-tight">Welcome back</h1>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">Here’s your reading overview.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="streakBadge" class="badge-green">Streak: 0 days</span>
+          <span id="totalTime" class="text-sm" style="color: var(--color-muted)"></span>
+        </div>
+      </section>
+
+      <section class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="card">
+          <p class="text-sm font-medium">Total reading time</p>
+          <p id="statMinutes" class="mt-2 text-2xl font-semibold">0</p>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">All completed sessions</p>
+        </div>
+        <div class="card">
+          <p class="text-sm font-medium">Books finished</p>
+          <p id="statBooksRead" class="mt-2 text-2xl font-semibold">0</p>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">100% completion</p>
+        </div>
+        <div class="card">
+          <p class="text-sm font-medium">Avg. min / page</p>
+          <p id="statMinsPerPage" class="mt-2 text-2xl font-semibold">—</p>
+          <p class="mt-1 text-sm" style="color: var(--color-muted)">From reading activity</p>
+        </div>
+      </section>
+
+      <section class="mt-8 grid gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+          <div class="flex items-end justify-between">
+            <h2 class="text-lg font-semibold">Library Books</h2>
+            <a class="text-sm underline" href="./student-library.html">View all</a>
+          </div>
+          <div id="booksGrid" class="mt-3 grid gap-3 sm:grid-cols-2"></div>
+        </div>
+
+        <aside class="space-y-4">
+          <div class="card">
+            <h2 class="text-lg font-semibold">Continue Reading</h2>
+            <p class="mt-1 text-sm" style="color: var(--color-muted)">All books you are currently reading.</p>
+            <div id="continueReading" class="mt-4 max-h-96 space-y-3 overflow-y-auto">
+              <p class="text-sm" style="color: var(--color-muted)">No books in progress yet.</p>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      (async function () {
+        const name = LibMetrics.displayNameFromEmail(LibMetrics.getEmail());
+        document.getElementById("userName").textContent = name;
+        document.getElementById("welcomeTitle").textContent = `Welcome back, ${name}`;
+
+        try {
+          const [analytics, books] = await Promise.all([
+            LibMetrics.api.getStudentAnalytics(),
+            LibMetrics.api.getBooks(),
+          ]);
+
+          document.getElementById("streakBadge").textContent = `Streak: ${analytics.current_streak_days} days`;
+          document.getElementById("totalTime").textContent = LibMetrics.formatMinutes(analytics.total_reading_time_minutes);
+          document.getElementById("statMinutes").textContent = LibMetrics.formatMinutes(analytics.total_reading_time_minutes);
+          document.getElementById("statBooksRead").textContent = analytics.total_books_read;
+          document.getElementById("statMinsPerPage").textContent =
+            analytics.minutes_per_page ? `${analytics.minutes_per_page}` : "—";
+
+          const inProgress = analytics.books_in_progress || analytics.book_progress.filter(
+            (p) => p.completion_percentage < 100
+          );
+
+          const progressMap = Object.fromEntries(
+            analytics.book_progress.map((p) => [p.book_id, p])
+          );
+
+          const grid = document.getElementById("booksGrid");
+          grid.innerHTML = books.slice(0, 4).map((book) => {
+            const prog = progressMap[book.id];
+            const pct = prog ? Math.round(prog.completion_percentage) : 0;
+            return `
+              <article class="card flex gap-4">
+                <img class="h-16 w-12 shrink-0 rounded border bg-white object-cover shadow-sm" style="border-color: var(--color-border)" alt="${book.title}" src="${LibMetrics.bookCoverSvg(book.title)}" />
+                <div class="min-w-0 flex-1">
+                  <h3 class="truncate text-sm font-semibold">${book.title}</h3>
+                  <p class="mt-1 text-sm" style="color: var(--color-muted)">${book.author}</p>
+                  <p class="mt-2 text-xs" style="color: var(--color-muted)">${pct}% complete · ${book.total_pages} pages</p>
+                  <a class="btn btn-primary mt-2 inline-block text-xs" href="./e-reader.html?book_id=${book.id}">Read</a>
+                </div>
+              </article>`;
+          }).join("");
+
+          const continueEl = document.getElementById("continueReading");
+          if (inProgress.length) {
+            continueEl.innerHTML = inProgress.map((book) => `
+              <div class="rounded-lg border p-3" style="border-color: var(--color-border)">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <p class="truncate text-sm font-semibold">${book.title}</p>
+                    <p class="mt-0.5 text-xs" style="color: var(--color-muted)">${book.author}</p>
+                    <p class="mt-1 text-xs" style="color: var(--color-muted)">Page ${book.current_page} of ${book.total_pages}</p>
+                  </div>
+                  <span class="badge-green shrink-0">${Math.round(book.completion_percentage)}%</span>
+                </div>
+                <a class="btn btn-primary mt-2 w-full text-xs" href="./e-reader.html?book_id=${book.book_id}">Continue</a>
+              </div>`).join("");
+          } else {
+            continueEl.innerHTML = `<p class="text-sm" style="color: var(--color-muted)">Start a book from the library to see it here.</p>`;
+          }
+        } catch (err) {
+          document.getElementById("booksGrid").innerHTML = `<p class="text-sm" style="color: var(--color-muted)">${err.message}</p>`;
+        }
+      })();
+    </script>
+  </body>
+</html>
