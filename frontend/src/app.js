@@ -4,11 +4,12 @@
   const EMAIL_KEY = "libmetrics_email";
   const API_BASE_KEY = "libmetrics_api_base";
 
+  const DEFAULT_API_BASE = "https://e-library-libmetris2.onrender.com";
   const API_BASE =
     window.localStorage.getItem(API_BASE_KEY) ||
     (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
       ? "http://localhost:8000"
-      : `${window.location.protocol}//${window.location.hostname}:8000`);
+      : DEFAULT_API_BASE);
 
   function getRole() {
     return window.localStorage.getItem(ROLE_KEY) || "";
