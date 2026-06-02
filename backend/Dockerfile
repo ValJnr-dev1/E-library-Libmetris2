@@ -11,4 +11,4 @@ RUN mkdir -p /app/uploads
 
 EXPOSE 8000
 
-CMD ["gunicorn", "app.main:app", "-c", "gunicorn.conf.py"]
+CMD ["sh", "-c", "alembic upgrade head && gunicorn app.main:app -c gunicorn.conf.py"]
