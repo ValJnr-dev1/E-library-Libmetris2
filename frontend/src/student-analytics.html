@@ -13,7 +13,7 @@
 
     <header class="topbar">
       <div class="container-page flex h-14 items-center justify-between">
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-4">
           <a href="./student-dashboard.html" class="text-sm font-semibold tracking-tight" style="color: var(--color-text)">LibMetrics</a>
           <nav class="hidden items-center gap-6 sm:flex">
             <a class="navlink" href="./student-dashboard.html">Dashboard</a>
@@ -21,17 +21,41 @@
             <a class="navlink" aria-current="page" href="./student-analytics.html">Analytics</a>
           </nav>
         </div>
-        <a class="btn btn-secondary" data-signout href="./student-login.html">Sign out</a>
+        <div class="flex items-center gap-3">
+          <button id="mobileMenuBtn" class="sm:hidden flex items-center justify-center w-8 h-8" style="background: none; cursor: pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </button>
+          <a class="btn btn-secondary hidden sm:inline-block" data-signout href="./student-login.html">Sign out</a>
+        </div>
       </div>
+      <nav id="mobileMenu" class="sm:hidden hidden bg-white border-t" style="border-color: var(--color-border);">
+        <div class="container-page py-2 space-y-1">
+          <a class="block px-3 py-2 text-sm rounded" href="./student-dashboard.html">Dashboard</a>
+          <a class="block px-3 py-2 text-sm rounded" href="./student-library.html">Library</a>
+          <a class="block px-3 py-2 text-sm rounded" href="./student-analytics.html">Analytics</a>
+          <a class="block px-3 py-2 text-sm rounded" data-signout href="./student-login.html">Sign out</a>
+        </div>
+      </nav>
     </header>
+    <script>
+      document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+        const menu = document.getElementById('mobileMenu');
+        menu.classList.toggle('hidden');
+      });
+      document.querySelectorAll('#mobileMenu a').forEach(link => {
+        link.addEventListener('click', function() {
+          document.getElementById('mobileMenu').classList.add('hidden');
+        });
+      });
+    </script>
 
-    <main class="container-page py-8">
-      <div class="flex items-end justify-between gap-3">
+    <main class="container-page py-6 sm:py-8">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 class="text-2xl font-semibold tracking-tight">Analytics</h1>
           <p class="mt-1 text-sm" style="color: var(--color-muted)">Your reading habits from the API.</p>
         </div>
-        <a class="btn btn-secondary" href="./student-dashboard.html">Back to Dashboard</a>
+        <a class="btn btn-secondary w-full sm:w-auto" href="./student-dashboard.html">Back to Dashboard</a>
       </div>
 
       <section class="mt-6 grid gap-3 sm:grid-cols-3">
