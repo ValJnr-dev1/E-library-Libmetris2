@@ -9,6 +9,14 @@ COPY . .
 
 RUN mkdir -p /app/uploads
 
+# Make entrypoint executable
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Use entrypoint to run migrations then start server
+ENTRYPOINT ["/entrypoint.sh"]
+
+
 EXPOSE 8000
 
 CMD ["gunicorn", "app.main:app", "-c", "gunicorn.conf.py"]
