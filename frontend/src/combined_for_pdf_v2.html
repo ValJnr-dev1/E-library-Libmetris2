@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LibMetrics Documentation</title>
+    <style>
+      body { font-family: -apple-system, Roboto, 'Segoe UI', Arial, sans-serif; margin: 40px; color: #111827; }
+      .container { max-width: 900px; margin: 0 auto; }
+      h1,h2,h3 { color: #0f172a; }
+      h1 { font-size: 28px; margin-top: 24px; }
+      h2 { font-size: 20px; margin-top: 20px; }
+      pre, code { background: #f3f4f6; padding: 8px; border-radius: 6px; overflow: auto; }
+      blockquote { color: #374151; border-left: 4px solid #e5e7eb; padding-left: 12px; }
+      nav.toc { margin-bottom: 24px; }
+      .section { margin-bottom: 18px; }
+      img, svg { max-width: 100%; }
+      @media print { body { margin: 20px; } }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="content"></div>
+    </div>
+
+    <script>
+      async function loadText(path) {
+        const resp = await fetch(path);
+        if (!resp.ok) return `Failed to load ${path}: ${resp.status}`;
+        return await resp.text();
+      }
+
+      async function init() {
+        const readme = await loadText('/README.md');
+        const slides = await loadText('/defense_slides.md');
+        const combined = '# README\n\n' + readme + '\n\n---\n\n# Defense Slides\n\n' + slides;
+        const html = renderMarkdown(combined);
+        document.getElementById('content').innerHTML = html;
+      }
+
+      function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c])); }
+
+      function renderMarkdown(md){
+        const lines = md.split(/\r?\n/);
+        let out = '';
+        let inCode = false;
+        for(let l of lines){
+          if(l.startsWith('```')){ inCode = !inCode; out += inCode ? '<pre><code>' : '</code></pre>'; continue; }
+          if(inCode){ out += escapeHtml(l) + '\n'; continue; }
+          if(/^#{1,6}\s/.test(l)){ const level = l.match(/^#+/)[0].length; out += `<h${level}>${escapeHtml(l.replace(/^#+\s/,'').trim())}</h${level}>`; continue; }
+          if(/^\s*-\s+/.test(l)){ out += `<li>${escapeHtml(l.replace(/^\s*-\s+/,''))}</li>`; continue; }
+          if(l.trim()==='---'){ out += '<hr/>'; continue; }
+          if(l.trim()==='') { out += '<p></p>'; continue; }
+          out += `<p>${escapeHtml(l)}</p>`;
+        }
+        out = out.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
+        return out;
+      }
+
+      init().catch(e=>{ document.getElementById('content').innerText = 'Error: '+e; });
+    </script>
+  </body>
+</html>
