@@ -73,12 +73,12 @@
             return;
           }
           grid.innerHTML = list.map((book) => `
-            <article class="card flex gap-4" data-title="${book.title}" data-author="${book.author}">
-              <img class="h-20 w-14 shrink-0 rounded border bg-white object-cover shadow-sm" style="border-color: var(--color-border)" alt="${book.title}" src="${LibMetrics.bookCoverSvg(book.title)}" />
-              <div class="min-w-0 flex-1">
-                <h2 class="truncate text-sm font-semibold">${book.title}</h2>
-                <p class="mt-1 text-sm" style="color: var(--color-muted)">${book.author}</p>
-                <p class="mt-2 text-sm" style="color: var(--color-muted)">${book.description || "No description."}</p>
+            <article class="card flex gap-4 w-full max-w-full" data-title="${book.title}" data-author="${book.author}">
+                <img class="h-20 w-14 shrink-0 rounded border bg-white object-cover shadow-sm" style="border-color: var(--color-border)" alt="${book.title}" src="${LibMetrics.bookCoverSvg(book.title)}" />
+                <div class="min-w-0 flex-1">
+                  <h2 class="text-sm font-semibold text-break">${book.title}</h2>
+                  <p class="mt-1 text-sm text-break" style="color: var(--color-muted)">${book.author}</p>
+                  <p class="mt-2 text-sm text-break" style="color: var(--color-muted)">${book.description || "No description."}</p>
                 <p class="mt-2 text-xs" style="color: var(--color-muted)">${book.total_pages} pages</p>
                 <a class="btn btn-primary mt-3 inline-block" href="./e-reader.html?book_id=${book.id}">Open Reader</a>
               </div>

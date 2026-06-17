@@ -60,6 +60,12 @@
     background: var(--color-surface);
   }
 
+  /* Ensure cards never overflow their container on small screens */
+  .card {
+    max-width: 100%;
+    word-break: break-word;
+  }
+
   .card:hover {
     background: color-mix(in srgb, var(--color-surface) 96%, var(--color-border));
     border-color: color-mix(in srgb, var(--color-primary) 28%, var(--color-border));
@@ -126,8 +132,50 @@
   }
 
   .table {
-    @apply w-full border-separate border-spacing-0 overflow-hidden rounded-lg border text-sm;
+    @apply w-full border-separate border-spacing-0 overflow-auto rounded-lg border text-sm;
     border-color: var(--color-border);
+  }
+
+  /* Make table cells wrap long content on narrow screens */
+  .table th,
+  .table td {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Utility for text that should wrap instead of truncating */
+  .text-break {
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  /* Ensure flex/grid children can shrink on small screens */
+  .min-w-0 {
+    min-width: 0;
+  }
+
+  /* Force wrapping for common text elements inside cards and plates */
+  .card h1,
+  .card h2,
+  .card h3,
+  .card p,
+  .card a,
+  .plate h1,
+  .plate h2,
+  .plate h3,
+  .plate p,
+  .plate a {
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  /* Prevent images from forcing overflow in flex rows */
+  .card img,
+  .plate img {
+    max-width: 100%;
+    height: auto;
   }
 
   .table th {

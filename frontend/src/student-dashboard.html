@@ -132,11 +132,11 @@
             const prog = progressMap[book.id];
             const pct = prog ? Math.round(prog.completion_percentage) : 0;
             return `
-              <article class="card flex gap-4">
+              <article class="card flex gap-4 w-full max-w-full">
                 <img class="h-16 w-12 shrink-0 rounded border bg-white object-cover shadow-sm" style="border-color: var(--color-border)" alt="${book.title}" src="${LibMetrics.bookCoverSvg(book.title)}" />
                 <div class="min-w-0 flex-1">
-                  <h3 class="truncate text-sm font-semibold">${book.title}</h3>
-                  <p class="mt-1 text-sm" style="color: var(--color-muted)">${book.author}</p>
+                  <h3 class="text-sm font-semibold text-break">${book.title}</h3>
+                  <p class="mt-1 text-sm text-break" style="color: var(--color-muted)">${book.author}</p>
                   <p class="mt-2 text-xs" style="color: var(--color-muted)">${pct}% complete · ${book.total_pages} pages</p>
                   <a class="btn btn-primary mt-2 inline-block text-xs" href="./e-reader.html?book_id=${book.id}">Read</a>
                 </div>
@@ -149,7 +149,7 @@
               <div class="rounded-lg border p-3" style="border-color: var(--color-border)">
                 <div class="flex items-start justify-between gap-2">
                   <div class="min-w-0">
-                    <p class="truncate text-sm font-semibold">${book.title}</p>
+                    <p class="text-sm font-semibold text-break">${book.title}</p>
                     <p class="mt-0.5 text-xs" style="color: var(--color-muted)">${book.author}</p>
                     <p class="mt-1 text-xs" style="color: var(--color-muted)">Page ${book.current_page} of ${book.total_pages}</p>
                   </div>
