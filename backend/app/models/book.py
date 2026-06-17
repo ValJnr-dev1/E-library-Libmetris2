@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, LargeBinary, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -13,7 +13,8 @@ class Book(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     author: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    file_path: Mapped[str] = mapped_column(String(500), nullable=False)
+    file_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    file_data: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     total_pages: Mapped[int] = mapped_column(Integer, nullable=False)
     uploaded_by: Mapped[int] = mapped_column(ForeignKey("librarians.id"), nullable=False)

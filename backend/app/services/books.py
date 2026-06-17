@@ -40,16 +40,17 @@ async def upload_book(
     file: UploadFile,
     total_pages: int | None = None,
 ) -> Book:
-    file_path, original_filename = await validate_and_save_pdf(file)
+    file_bytes, original_filename = await validate_and_save_pdf(file)
 
     if not total_pages or total_pages < 1:
-        total_pages = count_pdf_pages(file_path)
+        total_pages = count_pdf_pages(file_bytes)
 
     book = Book(
         title=title,
         author=author,
         description=description,
-        file_path=file_path,
+        file_path=None,
+        file_data=file_bytes,
         original_filename=original_filename,
         total_pages=total_pages,
         uploaded_by=librarian_id,

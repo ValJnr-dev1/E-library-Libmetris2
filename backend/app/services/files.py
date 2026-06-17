@@ -1,4 +1,4 @@
-import os
+import io
 import uuid
 from pathlib import Path
 
@@ -19,7 +19,12 @@ def ensure_upload_directory() -> Path:
     return path
 
 
-async def validate_and_save_pdf(file: UploadFile) -> tuple[str, str]:
+async def validate_and_save_pdf(file: UploadFile) -> tuple[bytes, str]:
+    """Validate an uploaded PDF and return its bytes and original filename.
+
+    This no longer writes the file to disk; it returns the bytes so callers
+    can persist them in the database.
+    """
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise AppException("Only PDF files are allowed", 400)
 
@@ -36,22 +41,19 @@ async def validate_and_save_pdf(file: UploadFile) -> tuple[str, str]:
     if not original_filename.lower().endswith(".pdf"):
         raise AppException("Only PDF files are allowed", 400)
 
-    internal_name = f"{uuid.uuid4().hex}.pdf"
-    upload_dir = ensure_upload_directory()
-    file_path = upload_dir / internal_name
-
-    with open(file_path, "wb") as f:
-        f.write(content)
-
-    return str(file_path), original_filename
+    return content, original_filename
 
 
-def count_pdf_pages(file_path: str | Path) -> int:
+def count_pdf_pages(file_source: str | Path | bytes) -> int:
+    """Count pages from a file path or from bytes."""
     from pypdf import PdfReader
     from pypdf.errors import PdfReadError
 
     try:
-        reader = PdfReader(str(file_path))
+        if isinstance(file_source, (bytes, bytearray)):
+            reader = PdfReader(io.BytesIO(file_source))
+        else:
+            reader = PdfReader(str(file_source))
         pages = len(reader.pages)
     except PdfReadError as exc:
         raise AppException(

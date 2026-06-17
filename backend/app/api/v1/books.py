@@ -1,7 +1,8 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from fastapi.responses import FileResponse
+import io
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.core.deps import CurrentUser, require_student
@@ -86,9 +87,19 @@ def serve_book_file(
     current_user: Annotated[CurrentUser, Depends(require_student)],
 ):
     book = book_service.get_active_book(db, book_id)
-    path = get_book_file_path(book.file_path)
-    return FileResponse(
-        path=path,
+    # Serve file bytes stored in the database (BYTEA / LargeBinary).
+    if not book.file_data:
+        # Fallback to file_path for older records
+        path = get_book_file_path(book.file_path)
+        return StreamingResponse(
+            io.open(path, "rb"),
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'attachment; filename="{book.original_filename}"'},
+        )
+
+    stream = io.BytesIO(book.file_data)
+    return StreamingResponse(
+        stream,
         media_type="application/pdf",
-        filename=book.original_filename,
+        headers={"Content-Disposition": f'attachment; filename="{book.original_filename}"'},
     )
