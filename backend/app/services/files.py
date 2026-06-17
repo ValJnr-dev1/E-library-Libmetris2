@@ -1,7 +1,4 @@
 import io
-import uuid
-from pathlib import Path
-
 from fastapi import UploadFile
 
 from app.config import get_settings
@@ -13,17 +10,10 @@ PDF_MAGIC = b"%PDF"
 ALLOWED_CONTENT_TYPES = {"application/pdf", "application/x-pdf"}
 
 
-def ensure_upload_directory() -> Path:
-    path = Path(settings.upload_directory)
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-
 async def validate_and_save_pdf(file: UploadFile) -> tuple[bytes, str]:
     """Validate an uploaded PDF and return its bytes and original filename.
 
-    This no longer writes the file to disk; it returns the bytes so callers
-    can persist them in the database.
+    Returns bytes so callers can persist them in the database.
     """
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise AppException("Only PDF files are allowed", 400)
@@ -44,8 +34,12 @@ async def validate_and_save_pdf(file: UploadFile) -> tuple[bytes, str]:
     return content, original_filename
 
 
-def count_pdf_pages(file_source: str | Path | bytes) -> int:
-    """Count pages from a file path or from bytes."""
+def count_pdf_pages(file_source: str | bytes) -> int:
+    """Count pages from bytes or from a file path string.
+
+    When given bytes, it reads from memory; when given a path string, it will
+    attempt to read the path via pypdf (caller responsibility).
+    """
     from pypdf import PdfReader
     from pypdf.errors import PdfReadError
 
@@ -63,10 +57,3 @@ def count_pdf_pages(file_source: str | Path | bytes) -> int:
     if pages < 1:
         raise AppException("PDF has no readable pages", 400)
     return pages
-
-
-def get_book_file_path(stored_path: str) -> Path:
-    path = Path(stored_path)
-    if not path.is_file():
-        raise AppException("Book file not found", 404)
-    return path

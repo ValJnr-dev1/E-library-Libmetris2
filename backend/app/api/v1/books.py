@@ -12,7 +12,6 @@ from app.schemas.book import BookResponse, ReaderStateResponse, ReadingProgressR
 from app.services import books as book_service
 from app.services import reading_progress as progress_service
 from app.services import reading_sessions as session_service
-from app.services.files import get_book_file_path
 from app.services.reading_progress import log_book_opened
 
 router = APIRouter(prefix="/books", tags=["Books"])
@@ -80,6 +79,7 @@ def get_reading_progress(
     )
 
 
+@router.get("/{book_id}/download")
 @router.get("/{book_id}/file")
 def serve_book_file(
     book_id: int,
@@ -89,13 +89,7 @@ def serve_book_file(
     book = book_service.get_active_book(db, book_id)
     # Serve file bytes stored in the database (BYTEA / LargeBinary).
     if not book.file_data:
-        # Fallback to file_path for older records
-        path = get_book_file_path(book.file_path)
-        return StreamingResponse(
-            io.open(path, "rb"),
-            media_type="application/pdf",
-            headers={"Content-Disposition": f'attachment; filename="{book.original_filename}"'},
-        )
+        raise Exception("Book file not available")
 
     stream = io.BytesIO(book.file_data)
     return StreamingResponse(

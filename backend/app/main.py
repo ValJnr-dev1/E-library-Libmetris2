@@ -7,7 +7,6 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.api.v1.router import api_router
 from app.core.exceptions import AppException
 from app.core.responses import error_response
-from app.services.files import ensure_upload_directory
 
 app = FastAPI(
     title="E-Library & Reading Intelligence API",
@@ -28,7 +27,8 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup():
-    ensure_upload_directory()
+    # No filesystem upload directory required since files are stored in DB
+    return None
 
 
 @app.exception_handler(AppException)

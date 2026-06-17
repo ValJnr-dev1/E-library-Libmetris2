@@ -49,7 +49,6 @@ async def upload_book(
         title=title,
         author=author,
         description=description,
-        file_path=None,
         file_data=file_bytes,
         original_filename=original_filename,
         total_pages=total_pages,

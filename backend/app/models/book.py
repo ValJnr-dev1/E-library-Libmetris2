@@ -13,7 +13,6 @@ class Book(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     author: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    file_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     file_data: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     total_pages: Mapped[int] = mapped_column(Integer, nullable=False)
